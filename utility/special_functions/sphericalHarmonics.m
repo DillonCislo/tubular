@@ -54,7 +54,7 @@ if strcmpi(SHType, 'real')
         
         a = (2*l+1) * factorial(l-abs(m));
         b = 4 * pi * factorial(l+abs(m));
-        C = (-1)^m * sqrt(a/b);
+        C = (-1)^((m < 0) * m) * sqrt(a/b);
         
         if m < 0
             YLM(:,i) = sqrt(2) * C .* Plm .* sin( abs(m) .* phi );
@@ -78,8 +78,8 @@ else
         
         a = (2*l+1) * factorial(l-abs(m));
         b = 4 * pi * factorial(l+abs(m));
-        C = (-1)^m * sqrt(a/b);
-        
+        C = (-1)^((m < 0) * m) * sqrt(a/b);
+
         YLM(:,i) = C .* Plm .* exp(1i * m * phi);
         
     end

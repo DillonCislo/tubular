@@ -41,6 +41,7 @@ dispStyle = 'iter';
 maxIter = 1000;
 noTrans = false;
 noRot = false;
+weight = ones(N,1);
 
 for i = 1:length(varargin)
    if isa(varargin{i}, 'double')
@@ -67,7 +68,16 @@ for i = 1:length(varargin)
        noRot = varargin{i+1};
        validateattributes( noRot, {'logical'}, {'scalar'});
    end
+   if strcmpi(varargin{i}, 'Weight')
+       weight = varargin{i+1};
+       validateattributes( weight, {'numeric'}, ...
+           {'vector', 'positive', 'finite', 'real', 'numel', N} );
+       if (size(weight,2) ~= 1), weight = weight.'; end
+   end
 end
+
+% Normalize point weights
+weight = weight ./ sum(weight);
 
 % Return a trivial identity map
 if (noTrans && noRot)
@@ -215,7 +225,7 @@ R = cos(aa) * eye(3) + sin(aa) * CKQ + (1-cos(aa)) * (K * K.');
         D = P - (RQ + t);
         
         % Calculate energy
-        E = sum( dot(D, D, 2) );
+        E = sum( weight .* dot(D, D, 2) );
         
         % -----------------------------------------------------------------
         % Calculate the energy gradient
@@ -244,12 +254,12 @@ R = cos(aa) * eye(3) + sin(aa) * CKQ + (1-cos(aa)) * (K * K.');
                 (k_P .* dotKQ + k .* dotKPQ) * (1-cos(alpha));
             
             % Calculate translation vector gradient
-            EG_Trans = -2 * sum(D, 1);
+            EG_Trans = -2 * sum( weight .* D, 1 );
             
             % Calculate rotation parameter gradients
-            EG_Alpha = -2 * sum( dot(D, RQ_A, 2) );
-            EG_Theta = -2 * sum( dot(D, RQ_T, 2) );
-            EG_Phi = -2 * sum( dot(D, RQ_P, 2) );
+            EG_Alpha = -2 * sum( weight .* dot(D, RQ_A, 2) );
+            EG_Theta = -2 * sum( weight .* dot(D, RQ_T, 2) );
+            EG_Phi = -2 * sum( weight .* dot(D, RQ_P, 2) );
             
             EG = [ EG_Alpha, EG_Theta, EG_Phi, EG_Trans ];
             
@@ -283,7 +293,7 @@ R = cos(aa) * eye(3) + sin(aa) * CKQ + (1-cos(aa)) * (K * K.');
         D = P - RQ;
         
         % Calculate energy
-        E = sum( dot(D, D, 2) );
+        E = sum( weight .* dot(D, D, 2) );
         
         % -----------------------------------------------------------------
         % Calculate the energy gradient
@@ -312,9 +322,9 @@ R = cos(aa) * eye(3) + sin(aa) * CKQ + (1-cos(aa)) * (K * K.');
                 (k_P .* dotKQ + k .* dotKPQ) * (1-cos(alpha));
 
             % Calculate rotation parameter gradients
-            EG_Alpha = -2 * sum( dot(D, RQ_A, 2) );
-            EG_Theta = -2 * sum( dot(D, RQ_T, 2) );
-            EG_Phi = -2 * sum( dot(D, RQ_P, 2) );
+            EG_Alpha = -2 * sum( weight .* dot(D, RQ_A, 2) );
+            EG_Theta = -2 * sum( weight .* dot(D, RQ_T, 2) );
+            EG_Phi = -2 * sum( weight .* dot(D, RQ_P, 2) );
             
             EG = [ EG_Alpha, EG_Theta, EG_Phi ];
             
@@ -339,7 +349,7 @@ function [E, EG] = rigidMotionEnergyNoRot( x )
         D = P - (Q + t);
         
         % Calculate energy
-        E = sum( dot(D, D, 2) );
+        E = sum( weight .* dot(D, D, 2) );
         
         % -----------------------------------------------------------------
         % Calculate the energy gradient
@@ -348,7 +358,7 @@ function [E, EG] = rigidMotionEnergyNoRot( x )
         if ( nargout > 1 )
 
             % Calculate translation vector gradient
-            EG = -2 * sum(D, 1);
+            EG = -2 * sum( weight .* D, 1 );
             
         end
         
