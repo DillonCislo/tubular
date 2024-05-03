@@ -726,7 +726,7 @@ trisurf( sphereTri, 'FaceColor', 'flat', 'FaceVertexCData', covErr, ...
     'EdgeColor', 'none' );
 axis equal
 colorbar
-set(gca, 'Clim', [0 1]);
+% set(gca, 'Clim', [0 1]);
 
 
 

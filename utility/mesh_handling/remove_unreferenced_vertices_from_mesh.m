@@ -27,5 +27,7 @@ if ~isempty(setdiff(1:length(vertex), face(:)))
     unreferenced = setdiff(1:size(vertex, 1), face(:)) ;
     [ face, vertex, oldVertexIDx, newVertexIDx] = ...
         remove_vertex_from_mesh( face, vertex, unreferenced ) ;
+else
+    newVertexIDx = oldVertexIDx;
 end
         
